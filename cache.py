@@ -2,7 +2,7 @@ class Cache:
 
     def __init__(self):
         ##stores memory location and instruction
-        self.locations = [(0b000000000, 0b000000000000) for i in range(2**5)]
+        self.locations = [('', '') for i in range(2**5)]
     
     def __repr__(self):
         return f"Current status of cache:\n{self.locations}"

@@ -8,7 +8,7 @@ def half_adder(i, j):
 def full_adder(i, j, c):
     carry = or_(and_(or_(i, j), c), and_(i, j))
     result = or_(or_(and_(xor_(i,j), not_(c)), and_(nor_(i,j), c)), and_(and_(i,j), c))
-    return result, carry
+    return (result, carry)
 
 
 #tests
