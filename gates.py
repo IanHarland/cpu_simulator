@@ -1,7 +1,7 @@
 def nand_(i, j):
     if i and j:
-        return 0
-    return 1
+        return 0b0
+    return 0b1
 
 def not_(i):
     return nand_(i, i)
