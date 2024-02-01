@@ -5,9 +5,11 @@ class Cache:
         self.j = 0
         cache_register = ['', '']
         for i in range(32):
-            cache_register[0] += '0'
+            if len(cache_register[0]) < 16:
+                cache_register[0] += '0'
             cache_register[1] += '0'
         self.locations = [cache_register for i in range(128)]
+        self.dirty_bits = [0 for i in range(128)]
     
     def __repr__(self):
         return f"Current status of cache:\n{self.locations}"
@@ -17,22 +19,29 @@ class Cache:
             if memory_register == self.locations[i][0]:
                 print("Cache hit!")
                 return self.locations[i][1]
-        data = memory_name.locations[memory_register]
-        empty_data = ''
-        for a in range(32):
-            empty_data += '0'
-        i = 0
-        current = self.locations[i]
-        while current[0] != empty_data:
-            i += 1
-            if i == 128:
-                current = self.locations[j]
-                self.j += 1
-                if self.j == 128:
-                    self.j = 0
-                break
-        current = [memory_register, data]
-        return data
+        data = memory_name.locations[int(memory_register, 2)]
+        if self.dirty_bits[self.j] == 0:
+            self.locations[self.j] = [memory_register, data]
+            self.j += 1
+            if self.j == 128:
+                self.j = 0
+            return data
+        else:
+            memory_name.locations[self.locations[self.j][0]] = self.locations[self.j][1]
+            self.dirty_bits[self.j] = 0
+            self.locations[self.j] = [memory_register, data]
+            self.j += 1
+            if self.j == 128:
+                self.j = 0
+            return data
+
     
-    def write_to_mem(self):
-        pass
+    def write_to_mem(self, mem_name, mem_loc, data):
+        for i in range(128):
+            if mem_loc == self.locations[i][0]:
+                print("Cache hit!")
+                self.locations[i][1] = data
+                self.dirty_bits[i] = 1
+                return f"Data input at cache location {i} referencing memory location {self.locations[i][0]}"
+        return mem_name.write(mem_loc, data)
+        
