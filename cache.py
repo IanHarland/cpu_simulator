@@ -33,3 +33,6 @@ class Cache:
                 break
         current = [memory_register, data]
         return data
+    
+    def write_to_mem(self):
+        pass

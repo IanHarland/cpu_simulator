@@ -3,6 +3,10 @@ from adder import *
 from cache import Cache
 from memory import Memory
 
+#instantiate memory and cache
+memory = Memory()
+cache = Cache()
+
 register = ""
 for i in range(32):
     register += '0'
@@ -43,6 +47,10 @@ def addi(instruction):
     registers[rd_idx] = temp_reg
     return (rd_idx, registers[rd_idx])
 
+def retrieve(instruction):
+    mem_loc = instruction[3:19]
+    new_data = cache.get(memory, mem_loc)
+    return cu(new_data)
 
 def cu(instruction):
     if len(instruction) != 32 or type(instruction) != str:
@@ -65,7 +73,7 @@ def cu(instruction):
     if instruction[:3] == '110':
         pass
     if instruction[:3] == '111':
-        pass
+        return retrieve(instruction)
 
 #add 0b1 to r0 val and insert into r2
 print(cu('10100010000000000000000000000001'))
@@ -73,3 +81,5 @@ print(cu('10100010000000000000000000000001'))
 print(cu('10100011000100000000000000000011'))
 #add r2 to r3 and insert into r1
 print(cu('00000001000100001100000000000000'))
+#retrieve from memory location 0
+print(cu('11100000000000000000000000000000'))
