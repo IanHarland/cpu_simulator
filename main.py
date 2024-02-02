@@ -3,14 +3,37 @@ from adder import *
 from cache import Cache
 from memory import Memory
 
-#instantiate memory and cache
+# ISA
+# OPCODES
+# 000 | PLACE ENTIRE INSTRUCTION INTO REGISTER 31 FROM MEMORY
+#     | 
+# 001 | MULTIPLY
+#     | rd(5) rs(5) rt(5) NULL(14)
+# 010 | FLOOR DIVIDE
+#     | rd(5) rs(5) rt(5) NULL(14)
+# 011 | MODULO
+#     | rd(5) rs(5) rt(5) NULL(14)
+# 100 | ADDI
+#     | rd(5) rs(5) imm(19)
+# 101 | WRITE
+#     | mem(16) reg(5) NULL(8)
+# 110 | ADD
+#     | rd(5) rs(5) rt(5) NULL(14)
+# 111 | RETRIEVE/EXECUTE
+#     | mem(16) NULL(13)
+
+
+# INSTANTIATE MEMORY AND CACHE
 memory = Memory()
 cache = Cache()
 
+# CREATE REGISTERS
 register = ""
 for i in range(32):
     register += '0'
 registers = [register for i in range(32)]
+
+# CU/ALU FUNCTIONS
 
 def addition(instruction):
     rd_idx = int(instruction[3:8], 2)
@@ -103,9 +126,16 @@ def write(instruction):
     data = registers[reg_idx]
     return cache.write_to_mem(memory, mem_loc, data)
 
+# Since for this simulation, I'll mostly just be storing
+# integers in cache, the following function exists to simply place
+# number into register 31 if the OPCODE is 000 (which for
+# almost all 32 bit integers, it will be.)
+
 def place(instruction):
     i = format(int(instruction, 2), '05b')
     return cu('1101111100000' +  i + '00000000000000')
+
+# CU/ALU
 
 def cu(instruction):
     if len(instruction) != 32 or type(instruction) != str:
@@ -129,6 +159,8 @@ def cu(instruction):
         return addition(instruction)
     if instruction[:3] == '111':
         return retrieve(instruction)
+    
+# TESTS
 
 # add 0b1 to r0 val and insert into r2
 print(cu('10000010000000000000000000000001'))
@@ -144,8 +176,20 @@ print(cu("00100100000010001100000000000000"))
 print(cu("01100101001000001100000000000000"))
 # r5 mod r3 and insert into r6
 print(cu('01000110001010001100000000000000'))
-# retrieve from memory location 1 (twice)
+# retrieve from memory location 1 (twice, in order to prove cache hit.)
 print(cu('11100000000000000010000000000000'))
 print(cu('11100000000000000010000000000000'))
-# write r2 to memory location 1 (should be in cache)
+# write r2 to memory location 1 (should write to cache)
 print(cu('10100000000000000010001000000000'))
+# Fill memory 2-129 with r6 which is currently 0b1
+for i in range(2, 130):
+    print(cu('101' + format(i, '016b') + '0011000000000'))
+# Fill cache by retrieving from mem locations
+for i in range(130):
+    print(cu('111' + format(i, '016b') + '0000000000000'))
+# Fill memory again (should fill cache and add dirty bits)
+for i in range(2, 130):
+    print(cu('101' + format(i, '016b') + '0011000000000'))
+# Retrieve from memory again to see write back
+for i in range(130):
+    print(cu('111' + format(i, '016b') + '0000000000000'))

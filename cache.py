@@ -27,7 +27,7 @@ class Cache:
                 self.j = 0
             return data
         else:
-            memory_name.locations[self.locations[self.j][0]] = self.locations[self.j][1]
+            memory_name.locations[int(self.locations[self.j][0], 2)] = self.locations[self.j][1]
             print(f"Writing {self.locations[self.j][1]} from cache location: {self.j} back to memory location {self.locations[self.j][0]}")
             self.dirty_bits[self.j] = 0
             self.locations[self.j] = [memory_register, data]
